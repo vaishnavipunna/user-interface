@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marvel Movies — Task 1</title>
+
+  <style>
+    /* Theme Colors */
+    :root {
+      --bg: #fdf2f8;
+      --text: #222;
+      --accent: #e62429;
+      --accent-dark: #c51317;
+      --secondary: #ffb703;
+      --card-bg: #fff;
+      --header-bg: linear-gradient(135deg, #e62429, #ff8f00);
+      --shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      --about-bg: linear-gradient(135deg, #ffe0e0, #fff3f3);
+    }
+
+    /* Dark Mode Theme */
+    body.dark {
+      --bg: #0d1117;
+      --text: #f1f1f1;
+      --card-bg: #161b22;
+      --header-bg: linear-gradient(135deg, #8b0000, #ff4b2b);
+      --shadow: 0 6px 20px rgba(255, 255, 255, 0.05);
+      --about-bg: linear-gradient(135deg, #1b1b1b, #2a2a2a);
+    }
+
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Body */
+    body {
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: all 0.3s ease-in-out;
+    }
+
+    /* Header */
+    header {
+      background: var(--header-bg);
+      color: white;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      box-shadow: var(--shadow);
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 0.8rem;
+      text-decoration: none;
+      font-weight: bold;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+    nav a:hover {
+      color: var(--secondary);
+      transform: scale(1.1);
+    }
+
+    #themeToggle {
+      background: white;
+      color: var(--accent);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: var(--shadow);
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    #themeToggle:hover {
+      background: #f1f1f1;
+      transform: scale(1.05);
+    }
+
+    /* Main Content */
+    main {
+      padding: 1.5rem;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    section {
+      margin: 2rem 0;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      padding: 1.5rem;
+      margin: 1rem 0;
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border-left: 6px solid var(--accent);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    }
+
+    /* About Marvel Section */
+    #about {
+      background: var(--about-bg);
+      text-align: center;
+      padding: 2rem;
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+    }
+
+    #about p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    #about img {
+      width: 100%;
+      border-radius: 12px;
+      margin-top: 1rem;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      transition: transform 0.4s ease, filter 0.4s ease;
+    }
+
+    #about img:hover {
+      transform: scale(1.05);
+      filter: brightness(1.1);
+    }
+
+    #about button {
+      background: var(--secondary);
+      color: black;
+      font-weight: bold;
+      margin-top: 1rem;
+      padding: 0.7rem 1.5rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+
+    #about button:hover {
+      background: #ff9900;
+      transform: scale(1.1);
+    }
+
+    /* Movies Grid */
+    .movies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .movies-grid div {
+      text-align: center;
+      background: var(--card-bg);
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .movies-grid div:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .movies-grid img {
+      width: 100%;
+      height: 320px; /* Equal size for all posters */
+      object-fit: cover;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .movies-grid img:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Movie Titles */
+    .movie-title {
+      margin-top: 0.7rem;
+      font-weight: bold;
+      font-size: 1.05rem;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    /* Universal Button Styling */
+    .btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      margin-top: 0.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: var(--shadow);
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .btn:hover {
+      background: var(--accent-dark);
+      transform: scale(1.08);
+    }
+
+    /* Alert Button Styling */
+    .alert-btn {
+      background: #ff9800;
+      color: white;
+      padding: 0.6rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
+      box-shadow: var(--shadow);
+      margin-top: 1.5rem;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .alert-btn:hover {
+      background: #e68900;
+      transform: scale(1.08);
+    }
+
+    /* Input */
+    input {
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 60%;
+      margin-top: 0.5rem;
+      margin-right: 0.5rem;
+      font-size: 1rem;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 1rem;
+      margin-top: 2rem;
+      background: #ffe4e4;
+      border-top: 1px solid #ccc;
+      color: #333;
+      font-weight: bold;
+    }
+
+    body.dark footer {
+      background: #1e1e1e;
+      border-top: 1px solid #333;
+      color: #aaa;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      nav {
+        margin-top: 0.5rem;
+      }
+
+      input {
+        width: 100%;
+        margin-bottom: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <h1>🦸‍♂️ Marvel Cinematic Universe</h1>
+    <nav>
+      <a href="#about">About</a>
+      <a href="#movies">Movies</a>
+      <a href="#greeting">Greeting</a>
+      <a href="#quotes">Quotes</a>
+    </nav>
+    <button id="themeToggle">🌙 Dark Mode</button>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- About -->
+    <section id="about" class="card">
+      <h2>📌 About Marvel</h2>
+      <p>
+        Welcome to the <span style="color:#e62429;font-weight:bold;">Marvel Cinematic Universe (MCU)</span>!  
+        A legendary world of <span style="color:#ff9800;font-weight:bold;">superheroes</span>,  
+        <span style="color:#0096FF;font-weight:bold;">magic</span>, and  
+        <span style="color:#8E44AD;font-weight:bold;">technology</span>,  
+        where heroes like <span style="color:#e62429;font-weight:bold;">Iron Man</span>,  
+        <span style="color:#1E90FF;font-weight:bold;">Spider-Man</span>,  
+        <span style="color:#0D98BA;font-weight:bold;">Captain America</span>,  
+        <span style="color:#ff9800;font-weight:bold;">Thor</span>,  
+        <span style="color:#228B22;font-weight:bold;">Hulk</span>, and  
+        <span style="color:#9932CC;font-weight:bold;">Doctor Strange</span>  
+        unite to <b>protect</b> the  
+        <span style="color:#FF4500;font-weight:bold;">multiverse</span>! 🌌
+      </p>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Marvel_Cinematic_Universe_logo.png/1200px-Marvel_Cinematic_Universe_logo.png" alt="Marvel Studios">
+      <button class="btn" onclick="document.getElementById('movies').scrollIntoView({behavior: 'smooth'});">🎥 Know More</button>
+    </section>
+
+    <!-- Movies -->
+    <section id="movies" class="card">
+      <h2>🎬 Popular Marvel Movies</h2>
+      <div class="movies-grid">
+        <!-- Avengers Endgame -->
+        <div>
+          <img src="https://m.media-amazon.com/images/I/71niXI3lxlL._AC_SL1024_.jpg" alt="Avengers Endgame">
+          <p class="movie-title">Avengers: Endgame</p>
+          <button class="btn" onclick="window.open('https://youtu.be/TcMBFSGVi1c','_blank')">▶ Watch Trailer</button>
+        </div>
+
+        <!-- Iron Man -->
+        <div>
+          <img src="https://images-cdn.ubuy.co.in/66c44a8253416647e77210f3-iron-man-dvd-disney-action.jpg" alt="Iron Man">
+          <p class="movie-title">Iron Man</p>
+          <button class="btn" onclick="window.open('https://youtu.be/8ugaeA-nMTc','_blank')">▶ Watch Trailer</button>
+        </div>
+
+        <!-- Spider-Man No Way Home -->
+        <div>
+          <img src="https://upload.wikimedia.org/wikipedia/en/thumb/0/00/Spider-Man_No_Way_Home_poster.jpg/250px-Spider-Man_No_Way_Home_poster.jpg" alt="Spider-Man No Way Home">
+          <p class="movie-title">Spider-Man: No Way Home</p>
+          <button class="btn" onclick="window.open('https://youtu.be/JfVOs4VSpmA','_blank')">▶ Watch Trailer</button>
+        </div>
+
+        <!-- Doctor Strange in the Multiverse of Madness-->
+        <div>
+          <img src="https://upload.wikimedia.org/wikipedia/en/1/17/Doctor_Strange_in_the_Multiverse_of_Madness_poster.jpg" alt="Doctor Strange">
+          <p class="movie-title">Doctor Strange in the Multiverse of Madness</p>
+          <button class="btn" onclick="window.open('https://youtu.be/aWzlQ2N6qqg','_blank')">▶ Watch Trailer</button>
+        </div>
+      </div>
+
+      <!-- Alert Button -->
+      <div style="text-align: center; margin-top: 1.5rem;">
+        <button class="alert-btn" onclick="showMarvelAlert()">🔥 Get Marvel Updates</button>
+      </div>
+    </section>
+
+    <!-- Greeting -->
+    <section id="greeting" class="card">
+      <h2>🦸 Personalized Superhero Greeting</h2>
+      <p>Enter your name and become an Avenger!</p>
+      <input type="text" id="nameInput" placeholder="Enter your name..." />
+      <button id="greetBtn" class="btn">Join the Avengers</button>
+      <p id="greetingMessage" style="margin-top:0.8rem;font-weight:bold;"></p>
+    </section>
+
+    <!-- Quotes -->
+    <section id="quotes" class="card">
+      <h2>💬 Marvel Quotes</h2>
+      <button id="quoteBtn" class="btn">Get a Random Quote</button>
+      <p id="quoteText" style="margin-top:0.8rem;font-style:italic;"></p>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 Marvel Cinematic Universe Fan Page | Designed for Task 1</p>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    // Personalized Greeting
+    const greetBtn = document.getElementById("greetBtn");
+    const nameInput = document.getElementById("nameInput");
+    const greetingMessage = document.getElementById("greetingMessage");
+
+    greetBtn.addEventListener("click", () => {
+      const name = nameInput.value.trim();
+      if (name) {
+        greetingMessage.textContent = `Welcome, ${name}! 🦸 You are now an Avenger!`;
+        greetingMessage.style.color = "#e62429";
+      } else {
+        greetingMessage.textContent = "⚠ Please enter your name!";
+        greetingMessage.style.color = "crimson";
+      }
+    });
+
+    // Marvel Quotes
+    const quoteBtn = document.getElementById("quoteBtn");
+    const quoteText = document.getElementById("quoteText");
+
+    const quotes = [
+      "I am Iron Man. — Tony Stark",
+      "Avengers, Assemble! — Captain America",
+      "I can do this all day. — Captain America",
+      "Dormammu, I've come to bargain! — Doctor Strange",
+      "With great power comes great responsibility. — Uncle Ben",
+      "Wakanda Forever! — T'Challa"
+    ];
+
+    quoteBtn.addEventListener("click", () => {
+      const random = Math.floor(Math.random() * quotes.length);
+      quoteText.textContent = quotes[random];
+    });
+
+    // Dark/Light Mode Toggle
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      themeToggle.textContent = document.body.classList.contains("dark")
+        ? "☀️ Light Mode"
+        : "🌙 Dark Mode";
+    });
+
+    // Custom Alert Message for Marvel Updates
+    function showMarvelAlert() {
+      alert("🔥 New Marvel movies and trailers are coming soon! Stay tuned!");
+    }
+  </script>
+</body>
+</html>
