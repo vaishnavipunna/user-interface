@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Marvel Movies</title>
+
+  <style>
+    /* Theme Colors */
+    :root{
+      --bg:#fdf2f8; --text:#222; --accent:#e62429; --accent-dark:#c51317;
+      --secondary:#ffb703; --card-bg:#fff;
+      --header-bg:linear-gradient(135deg,#e62429,#ff8f00);
+      --shadow:0 8px 20px rgba(0,0,0,.15);
+      --about-bg:linear-gradient(135deg,#ffe0e0,#fff3f3);
+      --muted:#6b7280; --ok:#16a34a; --warn:#f59e0b; --err:#ef4444;
+      --chip:#f3f4f6; --chip-dark:#0f172a;
+    }
+    body.dark{
+      --bg:#0d1117; --text:#f1f1f1; --card-bg:#161b22;
+      --header-bg:linear-gradient(135deg,#8b0000,#ff4b2b);
+      --shadow:0 6px 20px rgba(255,255,255,.05);
+      --about-bg:linear-gradient(135deg,#1b1b1b,#2a2a2a);
+      --chip:#0b1220; --chip-dark:#111827;
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      background:var(--bg); color:var(--text); line-height:1.6;
+      transition: all .3s ease-in-out;
+    }
+
+    /* Header */
+    header{
+      background:var(--header-bg); color:#fff; padding:1rem 1.5rem;
+      display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;
+      box-shadow:var(--shadow);
+    }
+    header h1{font-size:1.8rem; font-weight:700; letter-spacing:.5px}
+    nav a{color:#fff; margin:0 .8rem; text-decoration:none; font-weight:700; transition:.3s}
+    nav a:hover{color:var(--secondary); transform:scale(1.08)}
+    #themeToggle{
+      background:#fff; color:var(--accent); border:none; padding:.5rem 1rem;
+      border-radius:6px; cursor:pointer; font-weight:700; box-shadow:var(--shadow); transition:.25s;
+    }
+    #themeToggle:hover{background:#f1f1f1; transform:scale(1.05)}
+
+    main{padding:1.5rem; max-width:1100px; margin:auto}
+    section{margin:2rem 0}
+
+    /* Cards */
+    .card{
+      background:var(--card-bg); padding:1.5rem; border-radius:14px; box-shadow:var(--shadow);
+      transition:.3s; border-left:6px solid var(--accent);
+    }
+    .card:hover{transform:translateY(-5px); box-shadow:0 10px 25px rgba(0,0,0,.25)}
+
+    /* About */
+    #about{ background:var(--about-bg); text-align:center; padding:2rem; }
+    #about p{font-size:1.1rem; line-height:1.8; margin-bottom:1rem}
+    #about img{width:100%; border-radius:12px; margin-top:1rem; box-shadow:0 8px 25px rgba(0,0,0,.3); transition:.4s}
+    #about img:hover{transform:scale(1.05); filter:brightness(1.08)}
+
+    /* Movies Grid */
+    .movies-grid{
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:1.5rem; margin-top:1rem;
+    }
+    .movies-grid .movie-card{
+      text-align:center; background:var(--card-bg); padding:1rem; border-radius:10px;
+      box-shadow:var(--shadow); transition:.3s;
+    }
+    .movies-grid .movie-card:hover{transform:translateY(-5px); box-shadow:0 10px 25px rgba(0,0,0,.3)}
+    .movies-grid img{
+      width:100%; height:320px; object-fit:cover; border-radius:10px; transition:.3s;
+      box-shadow:var(--shadow);
+    }
+    .movies-grid img:hover{transform:scale(1.05); box-shadow:0 12px 28px rgba(0,0,0,.4)}
+    .movie-title{margin-top:.7rem; font-weight:800; font-size:1.05rem; color:var(--accent); text-transform:uppercase}
+
+    /* Buttons */
+    .btn{
+      background:var(--accent); color:#fff; border:none; padding:.6rem 1.2rem; margin-top:.6rem;
+      border-radius:8px; cursor:pointer; font-weight:800; box-shadow:var(--shadow); transition:.25s;
+    }
+    .btn:hover{background:var(--accent-dark); transform:scale(1.06)}
+    .btn-outline{
+      background:transparent; color:var(--accent); border:2px solid var(--accent);
+    }
+    .btn-outline:hover{background:var(--accent); color:#fff}
+
+    .alert-btn{
+      background:#ff9800; color:#fff; padding:.6rem 1.5rem; border:none; border-radius:8px;
+      cursor:pointer; font-weight:800; box-shadow:var(--shadow); margin-top:1.5rem; transition:.25s;
+    }
+    .alert-btn:hover{background:#e68900; transform:scale(1.06)}
+
+    input, select, textarea{
+      width:100%; padding:.7rem .9rem; border:1px solid #d1d5db; border-radius:10px; font-size:1rem;
+      background:var(--card-bg); color:var(--text);
+    }
+    textarea{min-height:120px; resize:vertical}
+    label{font-weight:700; display:block; margin:.2rem 0 .4rem}
+    .row{display:grid; grid-template-columns:1fr 1fr; gap:1rem}
+    @media (max-width:768px){.row{grid-template-columns:1fr}}
+
+    .hint{font-size:.85rem; color:var(--muted)}
+    .error{font-size:.9rem; color:var(--err); margin-top:.25rem; display:none}
+    .ok{color:var(--ok)}
+
+    /* Rating stars */
+    .stars{display:flex; gap:.25rem; align-items:center; margin:.25rem 0}
+    .star{
+      width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+      background:var(--chip); cursor:pointer; user-select:none; font-size:1.1rem; transition:.2s;
+    }
+    body.dark .star{background:var(--chip-dark)}
+    .star.active{background:var(--accent); color:#fff; transform:translateY(-1px)}
+    .chips{display:flex; flex-wrap:wrap; gap:.5rem}
+    .chip{
+      padding:.35rem .7rem; border-radius:999px; background:var(--chip); font-size:.85rem; font-weight:700;
+      border:1px solid #e5e7eb;
+    }
+    body.dark .chip{background:var(--chip-dark); border-color:#1f2937}
+
+    /* Submissions */
+    .submissions{margin-top:1rem}
+    .submissions .tools{display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem}
+    .table{
+      width:100%; border-collapse:separate; border-spacing:0 10px;
+    }
+    .table thead th{font-size:.9rem; text-align:left; color:var(--muted); padding:.3rem .6rem}
+    .table tbody tr{
+      background:var(--card-bg); box-shadow:var(--shadow);
+    }
+    .table tbody td{padding:.75rem .6rem; vertical-align:top}
+    .table .actions button{margin-right:.4rem}
+    .empty{padding:1rem; text-align:center; color:var(--muted)}
+
+    /* Footer */
+    footer{
+      text-align:center; padding:1rem; margin-top:2rem; background:#ffe4e4; border-top:1px solid #ccc; color:#333; font-weight:700;
+    }
+    body.dark footer{background:#1e1e1e; border-top:1px solid #333; color:#aaa}
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <h1>🦸‍♂️ Marvel Cinematic Universe</h1>
+    <nav>
+      <a href="#about">About</a>
+      <a href="#movies">Movies</a>
+      <a href="#feedback">Feedback</a>
+      <a href="#greeting">Greeting</a>
+      <a href="#quotes">Quotes</a>
+    </nav>
+    <button id="themeToggle">🌙 Dark Mode</button>
+  </header>
+
+  <main>
+    <!-- About (Task 1) -->
+    <section id="about" class="card">
+      <h2>📌 About Marvel</h2>
+      <p>
+        Welcome to the <span style="color:#e62429;font-weight:bold;">Marvel Cinematic Universe (MCU)</span> —
+        a legendary world of <span style="color:#ff9800;font-weight:bold;">superheroes</span>,
+        <span style="color:#0096FF;font-weight:bold;">magic</span>, and
+        <span style="color:#8E44AD;font-weight:bold;">technology</span> where
+        <span style="color:#e62429;font-weight:bold;">Iron Man</span>,
+        <span style="color:#1E90FF;font-weight:bold;">Spider-Man</span>,
+        <span style="color:#0D98BA;font-weight:bold;">Captain America</span>,
+        <span style="color:#ff9800;font-weight:bold;">Thor</span>,
+        <span style="color:#228B22;font-weight:bold;">Hulk</span>, and
+        <span style="color:#9932CC;font-weight:bold;">Doctor Strange</span>
+        unite to protect the <span style="color:#FF4500;font-weight:bold;">multiverse</span>! 🌌
+      </p>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Marvel_Cinematic_Universe_logo.png/1200px-Marvel_Cinematic_Universe_logo.png" alt="Marvel Studios">
+      <button class="btn" onclick="document.getElementById('movies').scrollIntoView({behavior:'smooth'})">🎥 Know More</button>
+    </section>
+
+    <!-- Movies (Task 1) -->
+    <section id="movies" class="card">
+      <h2>🎬 Popular Marvel Movies</h2>
+      <div class="movies-grid">
+        <div class="movie-card">
+          <img src="https://m.media-amazon.com/images/I/71niXI3lxlL._AC_SL1024_.jpg" alt="Avengers Endgame">
+          <p class="movie-title">Avengers: Endgame</p>
+          <button class="btn" onclick="window.open('https://youtu.be/TcMBFSGVi1c','_blank')">▶ Watch Trailer</button>
+        </div>
+        <div class="movie-card">
+          <img src="https://images-cdn.ubuy.co.in/66c44a8253416647e77210f3-iron-man-dvd-disney-action.jpg" alt="Iron Man">
+          <p class="movie-title">Iron Man</p>
+          <button class="btn" onclick="window.open('https://youtu.be/8ugaeA-nMTc','_blank')">▶ Watch Trailer</button>
+        </div>
+        <div class="movie-card">
+          <img src="https://upload.wikimedia.org/wikipedia/en/thumb/0/00/Spider-Man_No_Way_Home_poster.jpg/250px-Spider-Man_No_Way_Home_poster.jpg" alt="Spider-Man No Way Home">
+          <p class="movie-title">Spider-Man: No Way Home</p>
+          <button class="btn" onclick="window.open('https://youtu.be/JfVOs4VSpmA','_blank')">▶ Watch Trailer</button>
+        </div>
+        <div class="movie-card">
+          <img src="https://upload.wikimedia.org/wikipedia/en/1/17/Doctor_Strange_in_the_Multiverse_of_Madness_poster.jpg" alt="Doctor Strange">
+          <p class="movie-title">Doctor Strange in the Multiverse of Madness</p>
+          <button class="btn" onclick="window.open('https://youtu.be/aWzlQ2N6qqg','_blank')">▶ Watch Trailer</button>
+        </div>
+      </div>
+
+      <div style="text-align:center">
+        <button class="alert-btn" onclick="showMarvelAlert()">🔥 Get Marvel Updates</button>
+      </div>
+    </section>
+
+    <!--Marvel Fan Feedback (Form, Validation, localStorage) -->
+    <section id="feedback" class="card">
+      <h2>📝 Marvel Fan Feedback</h2>
+      <p class="hint" style="margin-bottom:1rem">
+        Tell us what you love! This form validates inputs, includes a star rating, counts characters, and saves submissions to your browser (localStorage). You can search, delete, or clear all later.
+      </p>
+
+      <form id="feedbackForm" novalidate>
+        <div class="row">
+          <div>
+            <label for="fanName">Your Name</label>
+            <input id="fanName" type="text" placeholder="e.g., Peter Parker" maxlength="60" required>
+            <div class="error" id="errName">Please enter your name (min 2 characters).</div>
+          </div>
+          <div>
+            <label for="fanEmail">Email</label>
+            <input id="fanEmail" type="email" placeholder="e.g., peter@dailybugle.com" required>
+            <div class="error" id="errEmail">Please enter a valid email address.</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="favHero">Favorite Hero</label>
+            <select id="favHero" required>
+              <option value="">Select a hero…</option>
+              <option>Iron Man</option>
+              <option>Captain America</option>
+              <option>Thor</option>
+              <option>Hulk</option>
+              <option>Black Panther</option>
+              <option>Doctor Strange</option>
+              <option>Spider-Man</option>
+              <option>Scarlet Witch</option>
+              <option>Captain Marvel</option>
+            </select>
+            <div class="error" id="errHero">Please pick a hero.</div>
+          </div>
+
+          <div>
+            <label for="favMovie">Favorite Movie</label>
+            <select id="favMovie" required>
+              <option value="">Select a movie…</option>
+              <option>Avengers: Endgame</option>
+              <option>Iron Man</option>
+              <option>Spider-Man: No Way Home</option>
+              <option>Doctor Strange</option>
+              <option>Black Panther</option>
+              <option>Guardians of the Galaxy</option>
+              <option>Captain America: The Winter Soldier</option>
+            </select>
+            <div class="error" id="errMovie">Please choose a movie.</div>
+          </div>
+        </div>
+
+        <div>
+          <label>Rating</label>
+          <div class="stars" id="stars" aria-label="Rate 1 to 5">
+            <div class="star" data-value="1">★</div>
+            <div class="star" data-value="2">★</div>
+            <div class="star" data-value="3">★</div>
+            <div class="star" data-value="4">★</div>
+            <div class="star" data-value="5">★</div>
+          </div>
+          <div class="hint">Tap to set a rating. Current: <b id="ratingValue">0</b>/5</div>
+          <div class="error" id="errRating">Please select a rating.</div>
+        </div>
+
+        <div>
+          <label for="message">Why do you love it?</label>
+          <textarea id="message" placeholder="Share your thoughts…" maxlength="300" required></textarea>
+          <div class="row" style="margin-top:.25rem">
+            <div class="hint">Max 300 characters. <span id="count">300</span> left.</div>
+            <div class="chips" aria-hidden="true">
+              <span class="chip">#MCU</span>
+              <span class="chip">#Avengers</span>
+              <span class="chip">#Multiverse</span>
+            </div>
+          </div>
+          <div class="error" id="errMessage">Please write at least 10 characters.</div>
+        </div>
+
+        <div style="margin:.5rem 0 1rem">
+          <input id="consent" type="checkbox" style="width:auto; margin-right:.45rem">
+          <label for="consent" style="display:inline">I agree to share my feedback publicly.</label>
+          <div class="error" id="errConsent">You must agree before submitting.</div>
+        </div>
+
+        <div style="display:flex; gap:.5rem; flex-wrap:wrap">
+          <button type="submit" class="btn">🚀 Submit Feedback</button>
+          <button type="button" id="resetForm" class="btn btn-outline">↺ Reset</button>
+        </div>
+      </form>
+
+      <!-- Success / status -->
+      <div id="status" class="hint" style="margin-top:.8rem"></div>
+
+      <!-- Submissions -->
+      <div class="submissions">
+        <div class="tools">
+          <input id="searchBox" type="text" placeholder="🔎 Search by name, hero, or movie…" style="max-width:420px">
+          <button id="clearAll" class="btn btn-outline">🗑️ Clear All</button>
+        </div>
+        <table class="table" id="subsTable">
+          <thead>
+            <tr>
+              <th>Name</th><th>Email</th><th>Hero</th><th>Movie</th><th>Rating</th><th>Message</th><th>Date</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="subsBody">
+            <tr><td colspan="8" class="empty">No feedback yet. Be the first Avenger to speak! 🛡️</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Greeting (Task 1) -->
+    <section id="greeting" class="card">
+      <h2>🦸 Personalized Superhero Greeting</h2>
+      <p>Enter your name and become an Avenger!</p>
+      <div class="row">
+        <div style="grid-column:1 / -1">
+          <input type="text" id="nameInput" placeholder="Enter your name…"/>
+        </div>
+      </div>
+      <button id="greetBtn" class="btn">Join the Avengers</button>
+      <p id="greetingMessage" style="margin-top:.8rem; font-weight:bold"></p>
+    </section>
+
+    <!-- Quotes (Task 1) -->
+    <section id="quotes" class="card">
+      <h2>💬 Marvel Quotes</h2>
+      <button id="quoteBtn" class="btn">Get a Random Quote</button>
+      <p id="quoteText" style="margin-top:.8rem; font-style:italic"></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Marvel Cinematic Universe Fan Page </p>
+  </footer>
+
+  <script>
+    /* ===== THEME ===== */
+    const themeToggle=document.getElementById("themeToggle");
+    themeToggle.addEventListener("click",()=>{
+      document.body.classList.toggle("dark");
+      themeToggle.textContent = document.body.classList.contains("dark") ? "☀️ Light Mode" : "🌙 Dark Mode";
+      localStorage.setItem("mcuTheme",document.body.classList.contains("dark")?"dark":"light");
+    });
+    (function initTheme(){
+      const saved = localStorage.getItem("mcuTheme");
+      if(saved==="dark"){ document.body.classList.add("dark"); themeToggle.textContent="☀️ Light Mode"; }
+    })();
+
+    /* ===== TASK 1: Greeting ===== */
+    const greetBtn=document.getElementById("greetBtn");
+    const nameInput=document.getElementById("nameInput");
+    const greetingMessage=document.getElementById("greetingMessage");
+    greetBtn.addEventListener("click",()=>{
+      const name=nameInput.value.trim();
+      if(name){
+        greetingMessage.textContent=`Welcome, ${name}! 🦸 You are now an Avenger!`;
+        greetingMessage.style.color="#e62429";
+      }else{
+        greetingMessage.textContent="⚠ Please enter your name!";
+        greetingMessage.style.color="crimson";
+      }
+    });
+
+    /* ===== TASK 1: Quotes ===== */
+    const quoteBtn=document.getElementById("quoteBtn");
+    const quoteText=document.getElementById("quoteText");
+    const quotes=[
+      "I am Iron Man. — Tony Stark",
+      "Avengers, Assemble! — Captain America",
+      "I can do this all day. — Captain America",
+      "Dormammu, I've come to bargain! — Doctor Strange",
+      "With great power comes great responsibility. — Uncle Ben",
+      "Wakanda Forever! — T'Challa"
+    ];
+    quoteBtn.addEventListener("click",()=>{
+      const random=Math.floor(Math.random()*quotes.length);
+      quoteText.textContent=quotes[random];
+    });
+
+    /* ===== Task 1: Alert Button ===== */
+    function showMarvelAlert(){ alert("🔥 New Marvel movies and trailers are coming soon! Stay tuned!"); }
+    window.showMarvelAlert=showMarvelAlert;
+
+    /* ===== TASK 2: Feedback Form, Validation, localStorage ===== */
+    const form = document.getElementById("feedbackForm");
+    const statusEl = document.getElementById("status");
+
+    const el = {
+      name: document.getElementById("fanName"),
+      email: document.getElementById("fanEmail"),
+      hero: document.getElementById("favHero"),
+      movie: document.getElementById("favMovie"),
+      message: document.getElementById("message"),
+      consent: document.getElementById("consent"),
+      count: document.getElementById("count"),
+      starsWrap: document.getElementById("stars"),
+      ratingValue: document.getElementById("ratingValue"),
+      search: document.getElementById("searchBox"),
+      clearAll: document.getElementById("clearAll"),
+      subsBody: document.getElementById("subsBody"),
+      resetForm: document.getElementById("resetForm")
+    };
+
+    // Character counter
+    function updateCount(){ el.count.textContent = 300 - el.message.value.length; }
+    el.message.addEventListener("input", updateCount); updateCount();
+
+    // Stars rating
+    let rating = 0;
+    [...el.starsWrap.querySelectorAll(".star")].forEach(s=>{
+      s.addEventListener("click",()=>{
+        rating = Number(s.dataset.value);
+        el.ratingValue.textContent = rating;
+        updateStarsUI();
+      });
+    });
+    function updateStarsUI(){
+      [...el.starsWrap.querySelectorAll(".star")].forEach(st=>{
+        st.classList.toggle("active", Number(st.dataset.value) <= rating);
+      });
+    }
+
+    // Validation helpers
+    const err = {
+      name: document.getElementById("errName"),
+      email: document.getElementById("errEmail"),
+      hero: document.getElementById("errHero"),
+      movie: document.getElementById("errMovie"),
+      rating: document.getElementById("errRating"),
+      message: document.getElementById("errMessage"),
+      consent: document.getElementById("errConsent"),
+    };
+    function show(e){ e.style.display="block"; }
+    function hide(e){ e.style.display="none"; }
+
+    function validate(){
+      let ok=true;
+      // Name
+      if(el.name.value.trim().length<2){ show(err.name); ok=false; } else hide(err.name);
+      // Email
+      const emailRx=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if(!emailRx.test(el.email.value.trim())){ show(err.email); ok=false; } else hide(err.email);
+      // Hero
+      if(!el.hero.value){ show(err.hero); ok=false; } else hide(err.hero);
+      // Movie
+      if(!el.movie.value){ show(err.movie); ok=false; } else hide(err.movie);
+      // Rating
+      if(rating<1){ show(err.rating); ok=false; } else hide(err.rating);
+      // Message
+      if(el.message.value.trim().length<10){ show(err.message); ok=false; } else hide(err.message);
+      // Consent
+      if(!el.consent.checked){ show(err.consent); ok=false; } else hide(err.consent);
+      return ok;
+    }
+
+    // Storage
+    const KEY="mcuFeedback";
+    function getAll(){ try{ return JSON.parse(localStorage.getItem(KEY))||[] }catch{return []} }
+    function setAll(arr){ localStorage.setItem(KEY, JSON.stringify(arr)); }
+    function addOne(item){ const arr=getAll(); arr.unshift(item); setAll(arr); }
+
+    // Render table
+    function render(filter=""){
+      const arr=getAll();
+      let filtered = arr;
+      if(filter){
+        const q=filter.toLowerCase();
+        filtered = arr.filter(x =>
+          x.name.toLowerCase().includes(q) ||
+          x.hero.toLowerCase().includes(q) ||
+          x.movie.toLowerCase().includes(q) ||
+          x.message.toLowerCase().includes(q)
+        );
+      }
+      el.subsBody.innerHTML="";
+      if(filtered.length===0){
+        const tr=document.createElement("tr");
+        tr.innerHTML=`<td colspan="8" class="empty">No matching feedback yet.</td>`;
+        el.subsBody.appendChild(tr);
+        return;
+      }
+      filtered.forEach((x,i)=>{
+        const tr=document.createElement("tr");
+        tr.innerHTML=`
+          <td><strong>${escapeHtml(x.name)}</strong></td>
+          <td>${escapeHtml(x.email)}</td>
+          <td>${escapeHtml(x.hero)}</td>
+          <td>${escapeHtml(x.movie)}</td>
+          <td>${"★".repeat(x.rating)}${"☆".repeat(5-x.rating)}</td>
+          <td>${escapeHtml(x.message)}</td>
+          <td>${new Date(x.ts).toLocaleString()}</td>
+          <td class="actions">
+            <button class="btn btn-outline" data-id="${x.id}">Delete</button>
+          </td>`;
+        el.subsBody.appendChild(tr);
+      });
+    }
+    function escapeHtml(s){
+      return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    // Delete handler
+    el.subsBody.addEventListener("click",(e)=>{
+      const btn=e.target.closest("button[data-id]");
+      if(!btn) return;
+      const id=btn.getAttribute("data-id");
+      const arr=getAll().filter(x=>x.id!==id);
+      setAll(arr);
+      render(el.search.value.trim());
+      flash("🗑️ Feedback deleted.","warn");
+    });
+
+    // Clear all
+    el.clearAll.addEventListener("click", ()=>{
+      if(confirm("Clear ALL feedback? This cannot be undone.")){
+        localStorage.removeItem(KEY);
+        render(el.search.value.trim());
+        flash("🧹 All feedback cleared.","warn");
+      }
+    });
+
+    // Search
+    el.search.addEventListener("input", ()=> render(el.search.value.trim()));
+
+    // Reset form
+    el.resetForm.addEventListener("click",()=>{
+      form.reset(); rating=0; updateStarsUI(); el.ratingValue.textContent="0"; updateCount();
+      Object.values(err).forEach(hide);
+      statusEl.textContent="";
+    });
+
+    // Submit
+    form.addEventListener("submit",(e)=>{
+      e.preventDefault();
+      if(!validate()){ flash("Please fix the highlighted fields.","err"); return; }
+
+      const data={
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        name: el.name.value.trim(),
+        email: el.email.value.trim(),
+        hero: el.hero.value,
+        movie: el.movie.value,
+        rating,
+        message: el.message.value.trim(),
+        ts: Date.now()
+      };
+      addOne(data);
+      render(el.search.value.trim());
+      form.reset(); rating=0; updateStarsUI(); el.ratingValue.textContent="0"; updateCount();
+      Object.values(err).forEach(hide);
+      flash("✅ Feedback submitted successfully!","ok");
+    });
+
+    function flash(msg,type="ok"){
+      statusEl.textContent=msg;
+      statusEl.className = "hint " + (type==="ok"?"ok": type==="warn"?"": "error");
+    }
+
+    // Initial render
+    render();
+
+  </script>
+</body>
+</html>
